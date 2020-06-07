@@ -1,0 +1,65 @@
+---
+title: "xgboost"
+author: "Sanmari Vivier"
+date: "6/7/2020"
+output: html_document
+    theme: flatly
+    toc: true
+    toc_depth: 2
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(
+    echo = TRUE,
+    message = FALSE,
+    warning = FALSE)
+```
+
+```{r}
+library(tidyverse)
+library(reticulate)
+```
+```{r}
+# set conda environment
+use_condaenv("py3.8", required = TRUE)
+
+# check if the correct environment is being used
+py_config()
+```
+
+
+```{python}
+# is python working?
+1+1
+```
+
+
+```{python}
+# XGBoost algorithm--------------------------------------------
+# import python libraries here
+# in conda terminal (with py3.8 env activated, install xgboost): pip install xgboost
+
+import xgboost as xgb
+import sklearn
+from sklearn.model_selection import train_test_split
+import pandas as pd
+```
+
+
+```{r}
+# write tibble files to .csv files
+female_dataset_py <- write_csv(female_dataset, 
+                               path = "female_dataset_py.csv")
+female_labels_py <- write_csv(female_labels,
+                              path = "female_labels_py.csv")
+males_dataset_py <- write_csv(males_dataset,
+                              path = "males_dataset_py.csv")
+males_labels_py <- write_csv(males_labels,
+                             path = "males_labels_py.csv")
+```
+
+
+```{python}
+female_dataset_py = pd.DataFrame(data = female_dataset_py)
+```
+
