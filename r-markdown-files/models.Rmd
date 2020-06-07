@@ -60,6 +60,51 @@ males_labels_py <- write_csv(males_labels,
 
 
 ```{python}
-female_dataset_py = pd.DataFrame(data = female_dataset_py)
+# Import the created .csv files
+# Females
+data_female = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/female_dataset_py.csv')
+data_female_labels = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/female_labels_py.csv')
+female_dataset_py = pd.DataFrame(data_female)
+female_labels_py = pd.DataFrame(data_female_labels)
+
+# Check to see if it is working
+print (female_dataset_py.head(), female_labels_py.head())
+```
+
+
+```{python}
+# Import the created .csv files----------------------------------
+# Males
+data_male = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/males_dataset_py.csv')
+data_male_labels = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/males_labels_py.csv')
+male_dataset_py = pd.DataFrame(data_male)
+male_labels_py = pd.DataFrame(data_male_labels)
+
+# Check to see if it is working
+print (male_dataset_py.head(), male_labels_py.head())
+```
+
+
+```{python}
+# Split up the data into training and testing sets
+# Females
+
+females_data_train, females_data_test = train_test_split(female_dataset_py,
+                 test_size=0.33, 
+                 random_state=42)
+females_labels_train, females_labels_test = train_test_split(female_labels_py,
+                 test_size=0.33, 
+                 random_state=42)
+```
+```{python}
+# Split up the data into training and testing sets
+# Males
+
+males_data_train, males_data_test = train_test_split(male_dataset_py,
+                 test_size=0.33, 
+                 random_state=42)
+males_labels_train, males_labels_test = train_test_split(male_labels_py,
+                 test_size=0.33, 
+                 random_state=42)
 ```
 
