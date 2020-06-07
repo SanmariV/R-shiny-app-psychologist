@@ -8,6 +8,11 @@ data_tib <- as_tibble(data)
 
 
 # Data wrangling-------------------------------
+data_tib$Sex <- as.character(data_tib$Sex)
+data_tib$Sex[data_tib$Sex == "f"] <- "Female"
+data_tib$Sex[data_tib$Sex == "m"] <- "Male"
+data_tib$Sex <- as.factor(data_tib$Sex)
+
 data_tib <- data_tib %>% 
             mutate(Birth_year = year(`date-of-birth`)) %>%
             glimpse()
