@@ -1,0 +1,89 @@
+---
+title: "python_calcs"
+author: "Sanmari Vivier"
+date: "6/9/2020"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+library(reticulate)
+
+# set conda environment
+use_condaenv("py3.8", required = TRUE)
+
+# check if the correct environment is being used
+py_config()
+```
+
+## R Markdown
+```{python}
+import pandas as pd
+import numpy as np
+```
+
+
+```{python}
+# Import the created .csv files
+# Females
+data_female = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/female_dataset_py.csv')
+data_female_labels = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/female_labels_py.csv')
+female_dataset_py = pd.DataFrame(data_female)
+female_labels_py = pd.DataFrame(data_female_labels)
+
+# Check to see if it is working
+print (female_dataset_py.head(), female_labels_py.head())
+
+
+# Import the created .csv files----------------------------------
+# Males
+data_male = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/males_dataset_py.csv')
+data_male_labels = pd.read_csv(r'C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/r-markdown-files/males_labels_py.csv')
+male_dataset_py = pd.DataFrame(data_male)
+male_labels_py = pd.DataFrame(data_male_labels)
+
+# Check to see if it is working
+print (male_dataset_py.head(), male_labels_py.head())
+```
+```{python}
+from collections import Counter
+import operator
+
+#len(female_dataset_py)
+#female_dataset_py.head()
+
+# create age list
+#age = np.arange(14,70,1)
+#print(type(female_dataset_py))
+
+# convert pd.dataFrame to a list
+females = female_dataset_py.values.tolist()
+females = np.asarray(females)
+#print(females[:10])
+
+# Change shape of array
+females = females[:,0]
+
+#print(females[:10])
+
+total_females = Counter()
+
+for age in females:
+            if age in total_females:
+                total_females[age] += 1
+            else:
+                total_females[age] = 1
+
+# Convert counter object back to pandas dataframe object
+f_according_to_age = pd.DataFrame.from_dict(total_females, orient='index').reset_index()
+
+f_according_to_age = f_according_to_age.rename(columns={'index':'age', 0:'count'})
+
+#print(f_according_to_age)
+#write to a csv file
+
+f_according_to_age.to_csv('C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/shiny_app/data/f_according_to_age.csv')
+```
+

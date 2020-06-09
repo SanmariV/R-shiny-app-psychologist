@@ -1,4 +1,5 @@
 # Install libraries----------
+install.packages('reticulate')
 install.packages('plotly')
 install.packages(c(
     "gapminder", "ggforce", "openintro", "shiny", "shinycssloaders", 
@@ -11,6 +12,7 @@ install.packages(c(
 
 library(tidyverse)
 library(lubridate)
-library(plotly)
 library(tidyquant)
+library(reticulate)
 library(shiny)
+library(plotly)

@@ -1,4 +1,4 @@
-id,Sex,date-of-birth,total-sessions,therapy-year
+id,gender,date_of_birth,total_sessions,therapy_year
 1,f,1989-11-02,11,2020
 2,m,1972-01-29,18,2019
 3,f,1968-10-05,20,2020

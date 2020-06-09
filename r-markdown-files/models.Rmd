@@ -1,11 +1,8 @@
 ---
-title: "xgboost"
+title: "Machine Learning Models"
 author: "Sanmari Vivier"
 date: "6/7/2020"
 output: html_document
-    theme: flatly
-    toc: true
-    toc_depth: 2
 ---
 
 ```{r setup, include=FALSE}
@@ -14,6 +11,110 @@ knitr::opts_chunk$set(
     message = FALSE,
     warning = FALSE)
 ```
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(tidyquant)
+library(reticulate)
+library(plotly)
+```
+
+
+```{r}
+# Import dataset--------------------------------
+data <- read_csv("data/ICD10_F43.2_patients.csv")
+data_tib <- as_tibble(data)
+
+# Data wrangling-------------------------------
+
+# Replace sex variables with more descriptive names
+data_tib$Sex <- as.character(data_tib$Sex)
+data_tib$Sex[data_tib$Sex == "f"] <- "Female"
+data_tib$Sex[data_tib$Sex == "m"] <- "Male"
+data_tib$Sex <- as.factor(data_tib$Sex)
+
+data_tib <- data_tib %>% 
+            mutate(Birth_year = year(`date-of-birth`)) %>%
+            glimpse()
+
+data_tib <- data_tib %>% 
+    mutate(age = `therapy-year` - Birth_year) %>%
+    glimpse()
+
+# How many males in dataset?
+males_tib <- data_tib %>% 
+    filter(data_tib$Sex == "m") %>% 
+    glimpse()
+
+# How many females in dataset?
+females_tib <- data_tib %>% 
+    filter(data_tib$Sex == "f") %>% 
+    glimpse()
+
+# Visualise the dataset
+fig <- ggplot(data = data_tib, aes(x = age, y = `total-sessions`, color = Sex)) + 
+    geom_point(alpha = 0.5) + 
+    labs(
+        title = "Visualisation of data set",
+        subtitle = "Therapy sessions according to age and sex",
+        x_lab= "Age",
+        y_lab="Sessions")+
+    theme_tq()
+
+# Add interactivity
+ggplotly(fig)
+
+# Remove outliers
+# Remove all ages less than 13 and more than 70
+# Remove all data where 4 < total-sessions <= 20
+
+data_tib <- data_tib %>% 
+            filter(age > 12, age < 71, `total-sessions`<= 20,`total-sessions`>4) %>% 
+            glimpse()
+
+# check if outliers were removed
+summary(data_tib)
+fig_no_outliers <- ggplot(data = data_tib, aes(x = age, y = `total-sessions`, color = Sex)) + 
+    geom_point(alpha = 0.5) + 
+    labs(
+        title = "Visualisation of data set",
+        subtitle = "Therapy sessions according to age and sex",
+        x_lab= "Age",
+        y_lab="Sessions")+
+    theme_tq()
+
+# Visualisation with outliers removed
+fig_no_outliers
+ggplotly(fig_no_outliers)
+
+# Split up data into females and males
+males_tib <- data_tib %>% 
+    filter(Sex == "Male") %>% 
+    glimpse()
+
+females_tib <- data_tib %>% 
+    filter(Sex =="Female") %>% 
+    glimpse()
+
+# Split data up into data and labels (prepare to apply machine learning model)
+female_dataset <- females_tib %>% 
+                select(age) %>% 
+                glimpse()
+
+female_labels <- females_tib %>% 
+                select(`total-sessions`) %>% 
+                glimpse()
+
+males_dataset <- males_tib %>% 
+                select(age) %>% 
+                glimpse()
+
+males_labels <- males_tib %>% 
+                select(`total-sessions`) %>% 
+                glimpse()
+```
+
 
 ```{r}
 library(tidyverse)
@@ -115,15 +216,21 @@ print(males_labels_train)
 from xgboost import XGBClassifier
 from sklearn.metrics import accuracy_score
 
+# Change the data shape of the labels
+females_labels_train = np.ravel(females_labels_train)
+females_labels_test = np.ravel(females_labels_test)
+males_labels_train = np.ravel(males_labels_train)
+males_labels_test = np.ravel(males_labels_test)
+
 # Train the model
-model = XGBClassifier(max_depth=5,
-                    eta=0.2,
+model = XGBClassifier(max_depth=6,
+                    eta=0.01,
                     gamma=4,
                     min_child_weight=6,
                     subsample=0.8,
                     #silent=0,
-                    objective='reg:linear',
-                    n_estimators=80,
+                    objective='binary:logistic',
+                    n_estimators=5,
                     seed=1729
                     )
                                         
@@ -149,7 +256,10 @@ print("XGB model accuracy for males: {:.3f} %\n".format(xgb_acc_m * 100))
 # Here we will be calculating the loss using RMSE (root-mean-square-error)
 from sklearn.metrics import mean_squared_error
 
-model2 = xgb.XGBRegressor(objective='reg:squarederror', seed=1729)
+model2 = xgb.XGBRegressor(objective='reg:squarederror',                                  n_estimators=12,
+                          seed=123,
+                          learning_rate=0.45
+                          )
 
 # Train the model
 model_xgbR_f = model2
@@ -182,7 +292,7 @@ males_labels_train_nb = np.ravel(males_labels_train)
 females_labels_test_nb = np.ravel(females_labels_test)
 males_labels_test_nb = np.ravel(males_labels_test)
 
-model3 = GaussianNB()
+model3 = GaussianNB(var_smoothing=0.000000001)
 
 # Train the model
 model_nb_f = model3
@@ -203,7 +313,8 @@ print("NB model accuracy for males: {:.3f} %\n".format(nb_acc_m * 100))
 
 # Model 4: Support Vector Machine algorithm------------------
 ```{python}
-from sklearn.svm import SVC
+#from sklearn.svm import SVC
+from sklearn.svm import LinearSVC
 
 # Change the data shapes for the labels using np.ravel()
 # Train set
@@ -214,7 +325,10 @@ males_labels_train_svm = np.ravel(males_labels_train)
 females_labels_test_svm = np.ravel(females_labels_test)
 males_labels_test_svm = np.ravel(males_labels_test)
 
-model4 = SVC(kernel="linear", gamma = 'auto', C = 10)
+model4 = LinearSVC(C = 1000, 
+                    max_iter=1000000,
+                    dual=False
+                    )
 
 # Train the model
 model_svm_f = model4
@@ -231,5 +345,32 @@ svm_acc_m = accuracy_score(males_labels_test_svm, pred_svm_m)
 print("\n")
 print("SVM model accuracy for females: {:.3f} %\n".format(svm_acc_f * 100))
 print("SVM model accuracy for males: {:.3f} %\n".format(svm_acc_m * 100))
+```
+
+# Model 5: Logistic Regression algorithm------------------
+```{python}
+from sklearn.linear_model import LogisticRegression
+
+model5 = LogisticRegression(max_iter=100000,
+                            C=1,
+                            solver='saga',
+                            dual=False
+                            )
+
+# Train the model
+model_lr_f = model5
+model_lr_m = model5
+
+model_lr_f.fit(females_data_train, females_labels_train_nb)
+model_lr_m.fit(males_data_train, males_labels_train_nb)
+
+# Test model
+pred_lr_f = model_lr_f.predict(females_data_test)
+pred_lr_m = model_lr_m.predict(males_data_test)
+lr_acc_f = accuracy_score(females_labels_test_nb, pred_lr_f)
+lr_acc_m = accuracy_score(males_labels_test_nb, pred_lr_m)
+print("\n")
+print("LR model accuracy for females: {:.3f} %\n".format(lr_acc_f * 100))
+print("LR model accuracy for males: {:.3f} %\n".format(lr_acc_m * 100))
 ```
 

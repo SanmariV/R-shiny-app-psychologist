@@ -1,9 +1,25 @@
 
 
-library(shiny)
+library(ggplot2)
+datasets <- data(package = "ggplot2")$results[c(2, 4, 10), "Item"]
+
 ui <- fluidPage(
-    "Hello, world!"
+    selectInput("dataset", "Dataset", choices = datasets),
+    verbatimTextOutput("summary"),
+    plotOutput("plot")
 )
+
 server <- function(input, output, session) {
+    dataset <- reactive({
+        get(input$dataset, "package:ggplot2")
+    })
+    output$summmry <- renderPrint({
+        summary(dataset())
+    })
+    output$plot <- renderPlot({
+        ggplot(data = dataset())
+    }, res = 96)
 }
+
 shinyApp(ui, server)
+
