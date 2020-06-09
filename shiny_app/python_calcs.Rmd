@@ -184,5 +184,66 @@ fig4 <- ggplot(data = m_according_to_age,
 
 ggplotly(fig4)
 ```
+```{r}
+# What is the average amount of sessions per age group?
+# Females
+
+glimpse(females_tib)
+glimpse(f_according_to_age)
+
+mean_sessions_per_age_f <- females_tib %>%
+                        select(age, gender, total_sessions) %>% 
+                        group_by(age) %>% 
+                        arrange(age,total_sessions) %>% 
+                        summarise(round(mean(total_sessions),3))
+
+colnames(mean_sessions_per_age_f)
+
+mean_sessions_per_age_f <- rename(mean_sessions_per_age_f, 
+                                  average = 'round(mean(total_sessions), 3)')
+
+fig5 <- ggplot(data = mean_sessions_per_age_f, 
+               aes(x = age, y = average)) +
+        geom_bar(stat="identity", fill = '#fc8d62') +
+        labs(
+            title = "Average sessions for females per age group",
+            subtitle = "") +
+        xlab("Age") +
+        ylab("Average sessions") +
+        theme_tq()
+
+ggplotly(fig5)
+
+
+
+
+```
+
+```{r}
+# Males
+
+mean_sessions_per_age_m <- males_tib %>%
+                        select(age, total_sessions) %>% 
+                        group_by(age) %>% 
+                        arrange(age,total_sessions) %>% 
+                        summarise(round(mean(total_sessions),3))
+
+mean_sessions_per_age_m <- rename(mean_sessions_per_age_m, 
+                                  average ='round(mean(total_sessions), 3)')
+
+view(mean_sessions_per_age_m)
+
+fig6 <- ggplot(data = mean_sessions_per_age_m, 
+               aes(x = age, y = average)) +
+        geom_bar(stat="identity", fill = '#8da0cb') +
+        labs(
+            title = "Average sessions for males per age group",
+            subtitle = "") +
+        xlab("Age") +
+        ylab("Average sessions") +
+        theme_tq()
+
+ggplotly(fig6)
+```
 
 
