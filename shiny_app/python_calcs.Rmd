@@ -195,7 +195,9 @@ mean_sessions_per_age_f <- females_tib %>%
                         select(age, gender, total_sessions) %>% 
                         group_by(age) %>% 
                         arrange(age,total_sessions) %>% 
-                        summarise(round(mean(total_sessions),3))
+                        summarise(round(mean(total_sessions),3)) %>% 
+                        mutate(gender = "Female") %>% 
+                        view()
 
 colnames(mean_sessions_per_age_f)
 
@@ -223,15 +225,20 @@ ggplotly(fig5)
 # Males
 
 mean_sessions_per_age_m <- males_tib %>%
-                        select(age, total_sessions) %>% 
+                        select(age, gender, total_sessions) %>% 
                         group_by(age) %>% 
                         arrange(age,total_sessions) %>% 
-                        summarise(round(mean(total_sessions),3))
+                        summarise(round(mean(total_sessions),3)) %>% 
+                        mutate(gender = "Male") %>% 
+                        view()
 
 mean_sessions_per_age_m <- rename(mean_sessions_per_age_m, 
                                   average ='round(mean(total_sessions), 3)')
 
 view(mean_sessions_per_age_m)
+
+# merge two tibbles
+combination <- inner_join(mean_sessions_per_age_f, mean_sessions_per_age_m) %>%                 glimpse()
 
 fig6 <- ggplot(data = mean_sessions_per_age_m, 
                aes(x = age, y = average)) +
@@ -244,6 +251,38 @@ fig6 <- ggplot(data = mean_sessions_per_age_m,
         theme_tq()
 
 ggplotly(fig6)
+```
+
+```{r}
+install.packages('dplyr')
+library(dplyr)
+packageVersion('dplyr')
+
+ggplot(data=df2, aes(x=dose, y=len, fill=supp)) +
+geom_bar(stat="identity", position=position_dodge())
+
+combined_mean <- data_tib %>% 
+                select(age, gender,total_sessions) %>% 
+                view()
+
+combined_mean <- combined_mean %>% 
+                group_by(age) %>% 
+                arrange(age,total_sessions) %>% 
+                summarise(mean(total_sessions)) %>% 
+                view()
+                                    
+                
+```
+```{r}
+Age <- seq(14,66,1)
+Gender <- c("Female", "Male")
+avg_sessions_female <- mean_sessions_per_age_f %>% 
+                filter(age >= 14 & age < 67) %>% 
+                view()
+
+avg_sessions_male <- mean_sessions_per_age_m %>% 
+                filter(age >= 14 & age < 67) %>% 
+                view()
 ```
 
 

@@ -37,9 +37,10 @@ females_tib <- data_tib %>%
     glimpse()
 
 # Visualise the dataset
-fig1 <- ggplot(data = data_tib, aes(x = age, y = total_sessions, color = gender)) + 
+fig1 <- ggplot(data = data_tib, 
+               aes(x = age, y = total_sessions, color = gender)) + 
     geom_point(alpha = 0.5) + 
-    lab(
+    labs(
         title = "Visualisation of data set",
         subtitle = "Therapy sessions according to age and sex") +
         xlab("Age") +
@@ -50,7 +51,8 @@ fig1 <- ggplot(data = data_tib, aes(x = age, y = total_sessions, color = gender)
 ggplotly(fig1)
 
 # Which age group attended the most sessions
-fig2 <- ggplot(data = data_tib, aes(x = age, fill = `total-sessions`, color = Sex)) + 
+fig2 <- ggplot(data = data_tib, 
+               aes(x = age, fill = total_sessions, color = gender)) + 
     geom_bar() + 
     #labs(
         #title = "Visualisation of data set",
@@ -66,7 +68,7 @@ ggplotly(fig2)
 # Remove all data where 4 < total-sessions <= 20
 
 data_tib <- data_tib %>% 
-            filter(age > 12, age < 71, `total-sessions`<= 20,`total-sessions`>4) %>% 
+            filter(age > 13, age < 70, total_sessions<= 20,total_sessions>4) %>% 
             glimpse()
 
 # Which age group attended the most sessions
@@ -74,13 +76,13 @@ data_tib <- data_tib %>%
 
 # check if outliers were removed
 summary(data_tib)
-fig_no_outliers <- ggplot(data = data_tib, aes(x = age, y = `total-sessions`, color = Sex)) + 
+fig_no_outliers <- ggplot(data = data_tib, aes(x = age, y = total_sessions, color = gender)) + 
     geom_point(alpha = 0.5) + 
     labs(
         title = "Visualisation of data set",
-        subtitle = "Therapy sessions according to age and sex",
-        x_lab= "Age",
-        y_lab="Sessions")+
+        subtitle = "Therapy sessions according to age and gender") +
+    xlab("Age")+
+    ylab("Sessions")+
     theme_tq()
 
 # Visualisation with outliers removed
@@ -102,7 +104,7 @@ female_dataset <- females_tib %>%
                 glimpse()
 
 female_labels <- females_tib %>% 
-                select(`total-sessions`) %>% 
+                select(total_sessions) %>% 
                 glimpse()
 
 males_dataset <- males_tib %>% 
@@ -110,9 +112,28 @@ males_dataset <- males_tib %>%
                 glimpse()
 
 males_labels <- males_tib %>% 
-                select(`total-sessions`) %>% 
+                select(total_sessions) %>% 
                 glimpse()
 
 
+combined_mean <- data_tib %>% 
+    select(age, gender, total_sessions) %>% 
+    group_by(age) %>% 
+    arrange(age) %>% 
+    summarise(age,round(mean(total_sessions), 3)) %>% 
+    view()
+
+# Medical aid rates
+medical_aid_rates <- read_csv("shiny_app/data/medical_aid_rates_2020.csv")
+view(medical_aid_rates)
+medical_aid_rates <- as_tibble(medical_aid_rates)
+
+fig7<-ggplot(data=medical_aid_rates, aes(x=medical_aid, y=rate)) +
+            geom_bar(stat="identity")+
+            xlab("Rate (ZAR)") +
+            ylab("Medical Aid Provider")+
+            theme_tq()
+
+ggplotly(fig7 + coord_flip())
 
 
