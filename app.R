@@ -41,6 +41,20 @@ males_tib <- data_tib %>%
 females_tib <- data_tib %>% 
     filter(data_tib$gender == "Female") %>% 
     glimpse()
+
+# Visualise the dataset
+fig1 <- ggplot(data = data_tib, 
+               aes(x = age, y = total_sessions, color = gender)) + 
+    geom_point(alpha = 0.5) + 
+    labs(
+        title = "Visualisation of data set: Outliers removed, 1099 participants",
+        subtitle = "Therapy sessions according to age and sex") +
+    xlab("Age") +
+    ylab("Sessions") +
+    theme_tq()
+
+fig1
+
 # Remove outliers
 # Remove all ages less than 13 and more than 68
 # Remove all data where 4 < total-sessions <= 20
@@ -108,7 +122,7 @@ fig7<-ggplot(data=medical_aid_rates, aes(x=rate, y=medical_aid)) +
 
 Gender <- c("Female", "Male")
 Age <- seq(14,68,1)
-
+?hover
 # Shiny App---------------------------------
 ui <- fluidPage(
     #<< first-row
@@ -129,7 +143,8 @@ ui <- fluidPage(
     
     #>> fourth row
     fluidRow(
-        column(12, plotOutput("medical_aid_rates", width = 500, height = 500))),
+        column(6, plotOutput("medical_aid_rates", width = 500, height = 500)),
+        column(6, plotlyOutput("visualise_data_set", width = 500, height = 500))),
     
     #>> fifth row
     fluidRow(
@@ -166,7 +181,7 @@ server <- function(input, output, session) {
             geom_bar(stat="identity", fill = "steelblue")+
             geom_text(aes(label=rate), vjust=0.5, hjust=1.3, color="white", size=3.5)+
             labs(
-                title = "**Medical Aid Rates for Psychologists for Tariff Code 86205 – 2020",
+                title = "**2020 Medical Aid Rates for Psychologists: Tariff Code 86205",
                 #subtitle = "Rate for Psychology assessment, consultation, counsellingand/or therapy (individual or family). Duration: 51-60min.",
                 x = "South African Medical Aid Provider",
                 y = "Rate (ZAR)"
@@ -177,6 +192,24 @@ server <- function(input, output, session) {
             theme(axis.title.x = element_text(face="bold", colour="black")) +
             theme(axis.title.y = element_text(face="bold", colour="black")) +
             coord_flip()},res=96)
+    
+    output$visualise_data_set <- renderPlotly({
+        print(
+        ggplotly(ggplot(data = data_tib, 
+               aes(x = age, y = total_sessions, color = gender)) + 
+            geom_point(alpha = 0.5) + 
+            labs(
+                title = "Visualisation of data set: Outliers removed, 1099 participants",
+                subtitle = "Therapy sessions according to age and sex") +
+            xlab("Age") +
+            ylab("Sessions") +
+            theme_tq() +
+            theme(plot.title=element_text(size=9, face="bold", colour="black")) +
+            theme(plot.subtitle=element_text(size=7, face="bold", colour="black")) +
+            theme(axis.title.x = element_text(face="bold", colour="black")) +
+            theme(axis.title.y = element_text(face="bold", colour="black")) 
+            ))
+        })
     
     output$text2 <- renderText(
         "   **Rate for Psychology assessment, consultation, counsellingand/or therapy (individual or family). Duration: 51-60min."
