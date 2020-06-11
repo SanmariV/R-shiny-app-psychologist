@@ -128,12 +128,17 @@ medical_aid_rates <- read_csv("shiny_app/data/medical_aid_rates_2020.csv")
 view(medical_aid_rates)
 medical_aid_rates <- as_tibble(medical_aid_rates)
 
-fig7<-ggplot(data=medical_aid_rates, aes(x=medical_aid, y=rate)) +
-            geom_bar(stat="identity")+
+colors_for_plot <- c('#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695')
+
+fig7<-ggplot(data=medical_aid_rates, aes(x=medical_aid, y=rate, fi)) +
+            geom_bar(stat="identity", color = "black", fill = colors_for_plot)+
+            geom_text(aes(label=rate), vjust=0, hjust=-0.1, size=3.5)+
             xlab("Rate (ZAR)") +
             ylab("Medical Aid Provider")+
-            theme_tq()
+            theme_tq()+
+            coord_flip()
 
-ggplotly(fig7 + coord_flip())
+fig7
+
 
 
