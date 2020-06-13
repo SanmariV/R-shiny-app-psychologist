@@ -1,11 +1,14 @@
 getwd()
 #setwd('C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/shiny_app/R scripts')
-
+install.packages("htmltools")
 library(tidyverse)
 library(lubridate)
 library(tidyquant)
 library(plotly)
 library(ggthemes)
+library(htmltools)
+
+packageVersion('plotly')
 
 # Import dataset--------------------------------
 
@@ -42,19 +45,6 @@ females_tib <- data_tib %>%
     filter(data_tib$gender == "Female") %>% 
     glimpse()
 
-# Visualise the dataset
-fig1 <- ggplot(data = data_tib, 
-               aes(x = age, y = total_sessions, color = gender)) + 
-    geom_point(alpha = 0.5) + 
-    labs(
-        title = "Visualisation of data set: Outliers removed, 1099 participants",
-        subtitle = "Therapy sessions according to age and sex") +
-    xlab("Age") +
-    ylab("Sessions") +
-    theme_tq()
-
-fig1
-
 # Remove outliers
 # Remove all ages less than 13 and more than 68
 # Remove all data where 4 < total-sessions <= 20
@@ -62,6 +52,25 @@ fig1
 data_tib <- data_tib %>% 
     filter(age > 13, age < 68, total_sessions<= 20,total_sessions>4) %>% 
     glimpse()
+
+# Visualise the dataset
+fig1 <- ggplot(data = data_tib, 
+               aes(x = age, y = total_sessions, color = gender)) + 
+    geom_point(alpha = 0.5) + 
+    xlab("Age") +
+    ylab("Sessions") +
+    theme_tq() +
+    #theme(plot.title=element_text(size=7, face="bold", colour="black")) +
+    #theme(plot.subtitle=element_text(size=7, face="bold", colour="black")) +
+    theme(axis.title.x = element_text(face="bold", colour="black")) +
+    theme(axis.title.y = element_text(face="bold", colour="black"))
+
+ggplotly(fig1) %>% 
+    layout(title = list(text = paste0('Visualisation of data set',
+                                      '<br>',
+                                      '<sup>',
+                                      'Outliers removed, 1099 participants',
+                                      '</sup>')))
 
 data_tib <- data_tib %>% 
     add_count(age,name="total_people") %>%
@@ -107,18 +116,22 @@ medical_aid_rates <- as_tibble(medical_aid_rates) %>%
 
 colors_for_plot <- c('#a50026','#d73027','#f46d43','#fdae61','#fee090','#e0f3f8','#abd9e9','#74add1','#4575b4','#313695')
 
-fig7<-ggplot(data=medical_aid_rates, aes(x=rate, y=medical_aid)) +
-    geom_bar(stat="identity", fill = "dark grey")+
-    geom_text(aes(label=rate), vjust=1.6, color="white", size=3.5)+
+fig2 <- ggplot(data=medical_aid_rates, aes(x=medical_aid, y=rate)) +
+    geom_bar(stat="identity", fill = "steelblue")+
+    geom_text(aes(label=rate), vjust=0.5, hjust=1.3, color="white", size=3.5)+
     labs(
-       title = "Medical Aid Rates for Psychologists for Tariff Code 205 – 2020",
-        subtitle = "Rate for Psychology assessment, consultation, counselling
-                    and/or therapy (individual or family). Duration: 51-60min.",
-        x = "Rate (ZAR)",
-        y = "Medical Aid Provider"
-        ) +
-    theme_few()+
+        title = "**2020 Medical Aid Rates for Psychologists: Tariff Code 86205",
+        #subtitle = "Rate for Psychology assessment, consultation, counsellingand/or therapy (individual or family). Duration: 51-60min.",
+        x = "South African Medical Aid Provider",
+        y = "Rate (ZAR)"
+    ) +
+    theme_tq()+
+    theme(plot.title=element_text(size=10, face="bold", colour="black")) +
+    theme(plot.subtitle=element_text(size=7, face="bold", colour="black")) +
+    theme(axis.title.x = element_text(face="bold", colour="black")) +
+    theme(axis.title.y = element_text(face="bold", colour="black")) +
     coord_flip()
+fig2
 
 Gender <- c("Female", "Male")
 Age <- seq(14,68,1)
@@ -158,7 +171,7 @@ server <- function(input, output, session) {
                         filter(gender == input$gender, age == input$age))
     
     output$text <- renderText(
-        "
+        p("
         \n
         The rates displayed apply to the NHRPL (National Health Reference Price List) Code: 86205 and ICD10 Code: F43.2 for the year of 2020.
         \nAll tariffs are inclusive of VAT.\nRates are subject to change by your medical aid and the
@@ -169,46 +182,26 @@ server <- function(input, output, session) {
         \n
         PLEASE VERIFY WITH YOUR MEDICAL AID.
         \n
-        "
+        ")
     )
     
     output$display_this <- renderTable(
         selected()
     )
     
-    output$medical_aid_rates <- renderPlot({
-        ggplot(data=medical_aid_rates, aes(x=medical_aid, y=rate)) +
-            geom_bar(stat="identity", fill = "steelblue")+
-            geom_text(aes(label=rate), vjust=0.5, hjust=1.3, color="white", size=3.5)+
-            labs(
-                title = "**2020 Medical Aid Rates for Psychologists: Tariff Code 86205",
-                #subtitle = "Rate for Psychology assessment, consultation, counsellingand/or therapy (individual or family). Duration: 51-60min.",
-                x = "South African Medical Aid Provider",
-                y = "Rate (ZAR)"
-            ) +
-            theme_few()+
-            theme(plot.title=element_text(size=9, face="bold", colour="black")) +
-            theme(plot.subtitle=element_text(size=7, face="bold", colour="black")) +
-            theme(axis.title.x = element_text(face="bold", colour="black")) +
-            theme(axis.title.y = element_text(face="bold", colour="black")) +
-            coord_flip()},res=96)
+    output$medical_aid_rates <- renderPlot(
+           fig2,
+        res=96)
     
     output$visualise_data_set <- renderPlotly({
         print(
-        ggplotly(ggplot(data = data_tib, 
-               aes(x = age, y = total_sessions, color = gender)) + 
-            geom_point(alpha = 0.5) + 
-            labs(
-                title = "Visualisation of data set: Outliers removed, 1099 participants",
-                subtitle = "Therapy sessions according to age and sex") +
-            xlab("Age") +
-            ylab("Sessions") +
-            theme_tq() +
-            theme(plot.title=element_text(size=9, face="bold", colour="black")) +
-            theme(plot.subtitle=element_text(size=7, face="bold", colour="black")) +
-            theme(axis.title.x = element_text(face="bold", colour="black")) +
-            theme(axis.title.y = element_text(face="bold", colour="black")) 
-            ))
+            ggplotly(fig1) %>% 
+                layout(title = list(text = paste0('Visualisation of data set',
+                                                  '<br>',
+                                                  '<sup>',
+                                                  'Outliers removed, 1099 participants',
+                                                  '</sup>'))), res=96, width="100%"
+            )
         })
     
     output$text2 <- renderText(
