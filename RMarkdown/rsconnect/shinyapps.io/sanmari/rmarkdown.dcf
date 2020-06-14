@@ -1,0 +1,10 @@
+name: rmarkdown
+title:
+username:
+account: sanmari
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2452192
+bundleId: 3267570
+url: https://sanmari.shinyapps.io/rmarkdown/
+when: 1592125954.77525

@@ -1,6 +1,7 @@
 getwd()
 #setwd('C:/Users/Sanmari Vivier/Dropbox/Personal/r-shiny-app/shiny_app/R scripts')
-install.packages("htmltools")
+#install.packages("htmltools")
+library(shiny)
 library(tidyverse)
 library(lubridate)
 library(tidyquant)

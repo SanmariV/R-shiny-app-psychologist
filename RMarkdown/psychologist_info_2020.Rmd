@@ -1,19 +1,23 @@
 ---
 title: "Information for South African Psychologists 2020: Tariff Code 86205"
-output: 
+runtime: shiny
+output:
   flexdashboard::flex_dashboard:
     orientation: columns
-    vertical_layout: fill
-    runtime: shiny
+    vertical_layout: scroll
+    source_code: embed
+    theme: cosmo
 ---
 
 ```{r setup, include=FALSE}
+#install.packages('rsconnect')
 library(flexdashboard)
 library(shiny)
 library(tidyverse)
 library(tidyquant)
 library(htmltools)
 library(plotly)
+library(rsconnect)
 ```
 
 Column {.sidebar data-width=300}
@@ -31,9 +35,9 @@ selectInput("age", "Age",choices = Age)
 ### **DISCLAIMER:**
 -  The rates displayed apply to the NHRPL (National Health Reference Price List) Tariff Code: 86205 for the year of 2020.
 
--  All participants in the dataset were diagnosed under ICD10 Code: F43.2.
+-  All observations in the data set were diagnosed under ICD10 Code: F43.2.
 
--  All tariffs are inclusive of VAT.
+-  All rates are inclusive of VAT.
 
 -  Rates are subject to change by your medical aid and the rates mentioned here are dependent on your level of cover. Please check with your medical aid.
 
@@ -41,9 +45,9 @@ selectInput("age", "Age",choices = Age)
         
 **PLEASE VERIFY WITH YOUR MEDICAL AID.**
 
-### About the data:
+#### About the data:
 -  Total of 1212 observations under diagnosis ICD10: F43.2.
--  Tariff code 86205 is used to designate the rate for Psychology assessment, consultation, counselling and/or therapy (individual or family)for duration: 51-60min.
+-  Tariff code 86205 is used to designate the rate for psychology assessment, consultation, counseling and/or therapy (individual or family)for duration: 51-60min.
 -  After removing the outliers, total of 1099 observations.
 -  Data captured from a single private practice in South Africa.
 
@@ -55,8 +59,8 @@ Row {data-height=150, data-width=400}
 -----------------------------------------------------------------------
 
 ### **Result of selected inputs:**
-```{r global, include=FALSE, echo=FALSE}
-# Import dataset--------------------------------
+```{r global, include=FALSE}
+# Import data set--------------------------------
 
 data <- read_csv("ICD10_F43.2_patients.csv")
 #data %>% glimpse()
@@ -169,7 +173,8 @@ fig2 <- ggplot(data=medical_aid_rates, aes(x=medical_aid, y=rate)) +
 
 ```{r}
     selected <- reactive(display_info %>% 
-                        filter(gender == input$gender, age == input$age))
+                        filter(gender == input$gender, 
+                               age == input$age))
 
     tableOutput("display_this")
     
@@ -190,7 +195,7 @@ output$medical_aid_rates <- renderPlot(
 Row {data-height=350}
 -----------------------------------------------------------------------
 
-### **Visualisation of Dataset:** Interactive Plot (Hover with your mouse over the graph)
+### **Visualization of Data Set:** Interactive Plot (Hover with your mouse over the graph)
 
 ```{r}
 # Input
@@ -202,4 +207,5 @@ output$visualise_data_set <- renderPlotly({
             ggplotly(fig1))
 })
 ```
+
 

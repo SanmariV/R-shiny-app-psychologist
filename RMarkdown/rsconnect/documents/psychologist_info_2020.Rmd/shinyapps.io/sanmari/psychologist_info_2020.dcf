@@ -1,0 +1,12 @@
+name: psychologist_info_2020
+title: psychologist_info_2020
+username:
+account: sanmari
+server: shinyapps.io
+hostUrl: https://api.shinyapps.io/v1
+appId: 2452204
+bundleId: 3267775
+url: https://sanmari.shinyapps.io/psychologist_info_2020/
+when: 1592133341.36851
+asMultiple: FALSE
+asStatic: FALSE
